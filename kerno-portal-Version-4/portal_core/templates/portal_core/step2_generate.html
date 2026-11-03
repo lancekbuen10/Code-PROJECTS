@@ -1,0 +1,77 @@
+{% extends 'portal_core/base.html' %}
+{% block content %}
+<script>
+    try {
+        if (localStorage.getItem('portal-step1-acknowledged') !== 'true') {
+            window.location.href = "{% url 'tools_dashboard' %}?workflow=device-loading";
+        }
+    } catch (error) {
+        window.location.href = "{% url 'tools_dashboard' %}?workflow=device-loading";
+    }
+</script>
+<div class="max-w-5xl mx-auto mt-10">
+    <a href="{% url 'tools_dashboard' %}?workflow=device-loading" class="mb-6 inline-flex items-center rounded border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Progress</a>
+
+    <div class="mb-6">
+        <h2 class="text-2xl text-white">Step 2a: Generate Feeder Lists</h2>
+        <p class="mt-2 text-sm text-gray-400">Select each Placement and Feeder Setup pair together. Both lists will be downloaded together.</p>
+    </div>
+
+    <div class="bg-kerno-panel border border-gray-800 p-8 rounded-lg shadow-xl">
+        <form method="POST" action="{% url 'step2_generate' %}" enctype="multipart/form-data" class="space-y-6 file-check-form" data-download-workflow="true" data-completion-key="portal-step2a-completed" data-next-step-url="{% url 'step2_combine' %}" data-next-step-label="Continue to Step 2b" data-download-filename="Feeder_Lists_B_and_T.zip">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <section class="rounded-xl border border-gray-700 bg-[#151515] p-5">
+                    <div class="mb-5 flex items-center justify-between border-b border-gray-800 pb-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Left side</p>
+                            <h3 class="mt-1 text-lg font-semibold text-white">Bottom Feeder List</h3>
+                        </div>
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-kerno-green bg-[#202a0f] font-bold text-kerno-green">B</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Select Exactly 2 Bottom Files (.csv)</label>
+                        <input type="file" name="bottom_files" accept=".csv,text/csv" multiple required data-required-count="2" class="w-full bg-[#111111] border border-gray-700 text-white p-2 rounded">
+                        <p class="mt-3 text-xs leading-5 text-gray-500">
+                            Select <span class="text-gray-300">Placement_B.csv</span> and
+                            <span class="text-gray-300">FeederSetup_B.csv</span> in the same file window.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="rounded-xl border border-gray-700 bg-[#151515] p-5">
+                    <div class="mb-5 flex items-center justify-between border-b border-gray-800 pb-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Right side</p>
+                            <h3 class="mt-1 text-lg font-semibold text-white">Top Feeder List</h3>
+                        </div>
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-kerno-green bg-[#202a0f] font-bold text-kerno-green">T</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Select Exactly 2 Top Files (.csv)</label>
+                        <input type="file" name="top_files" accept=".csv,text/csv" multiple required data-required-count="2" class="w-full bg-[#111111] border border-gray-700 text-white p-2 rounded">
+                        <p class="mt-3 text-xs leading-5 text-gray-500">
+                            Select <span class="text-gray-300">Placement_T.csv</span> and
+                            <span class="text-gray-300">FeederSetup_T.csv</span> in the same file window.
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="mx-auto max-w-xl rounded-xl border border-gray-700 bg-[#111111] p-5">
+                <div class="mb-3 text-center">
+                    <h3 class="font-semibold text-white">Shared Min/Max Database</h3>
+                    <p class="mt-1 text-xs text-gray-500">This database is applied to both feeder lists.</p>
+                </div>
+                <label class="block text-sm text-gray-400 mb-2">Min/Max Database (.xlsx)</label>
+                <input type="file" name="minmax_db" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required class="w-full bg-[#0d0d0d] border border-gray-700 text-white p-2 rounded">
+            </div>
+
+            <button type="submit" class="w-full bg-kerno-green hover:bg-[#a6e619] text-black font-bold py-3 rounded uppercase tracking-widest transition">Generate B &amp; T Feeder Lists</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

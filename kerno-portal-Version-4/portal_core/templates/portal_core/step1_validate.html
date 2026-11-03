@@ -1,0 +1,159 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<div class="mx-auto mt-10 max-w-3xl">
+    <a href="{% url 'tools_dashboard' %}?workflow=device-loading" data-rate-limited-action class="portal-interactive mb-6 inline-flex items-center rounded border border-gray-700 bg-[#111111]/70 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Progress</a>
+
+    {% if messages %}
+    <div class="portal-reveal mb-6 space-y-2">
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        <div class="p-4 rounded-lg text-sm border
+            {% if message.tags == 'success' %} bg-kerno-green/10 border-kerno-green text-kerno-green shadow-[0_0_10px_rgba(190,255,56,0.1)]
+            {% elif message.tags == 'warning' %} bg-yellow-500/10 border-yellow-500/40 text-yellow-400
+            {% elif message.tags == 'error' %} bg-red-500/10 border-red-500/40 text-red-400
+            {% else %} bg-gray-800/40 border-gray-700 text-gray-300 {% endif %}">
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="portal-glass portal-reveal overflow-hidden rounded-lg border border-gray-800 bg-kerno-panel shadow-2xl">
+        <div class="relative border-b border-gray-800 bg-[#111111]/80 px-6 py-6">
+            <div class="absolute inset-x-0 top-0 h-1 bg-kerno-green"></div>
+            <p class="portal-kicker mb-2 text-xs font-bold uppercase tracking-[0.2em] text-kerno-green">Step 1</p>
+            <h2 class="text-3xl font-light tracking-tight text-white">BOM Validation</h2>
+            <p class="mt-2 max-w-2xl text-sm text-gray-400">Upload your BOM along with the placement file(s). Choose single-side or double-side (Top/Bottom) mode below.</p>
+        </div>
+
+        <form id="step1-form" method="POST" action="{% url 'step1_validate' %}" enctype="multipart/form-data" class="p-6 file-check-form" data-download-workflow="true" data-completion-key="portal-step1-acknowledged" data-next-step-url="{% url 'step2_generate' %}" data-next-step-label="Continue to Step 2a" data-download-filename="BOM_Consolidated_Report.xlsx">
+            {% csrf_token %}
+
+            <div class="mb-6">
+                <p class="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">Validation Mode</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="mode-option portal-interactive cursor-pointer rounded-lg border border-kerno-green bg-kerno-green/10 p-4 text-center transition">
+                        <input type="radio" name="mode" value="double" class="peer sr-only" checked>
+                        <span class="block text-sm font-bold uppercase tracking-widest text-kerno-green">Double Side</span>
+                        <span class="mt-1 block text-xs text-gray-400">Top &amp; Bottom placement files</span>
+                    </label>
+                    <label class="mode-option portal-interactive cursor-pointer rounded-lg border border-gray-700 bg-[#111111] p-4 text-center transition">
+                        <input type="radio" name="mode" value="single" class="peer sr-only">
+                        <span class="block text-sm font-bold uppercase tracking-widest text-gray-300">Single Side</span>
+                        <span class="mt-1 block text-xs text-gray-400">One placement file</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label for="bom_file" class="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-500">BOM File</label>
+                <input type="file" id="bom_file" name="bom_file" required
+                    class="w-full rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-kerno-green file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-[#a6e619] focus:border-kerno-green focus:outline-none">
+            </div>
+
+            <div id="double-fields" class="mb-2 grid gap-5 sm:grid-cols-2">
+                <div>
+                    <label for="placement_t" class="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-500">Placement (Top)</label>
+                    <input type="file" id="placement_t" name="placement_t" required
+                        class="w-full rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-kerno-green file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-[#a6e619] focus:border-kerno-green focus:outline-none">
+                </div>
+                <div>
+                    <label for="placement_b" class="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-500">Placement (Bottom)</label>
+                    <input type="file" id="placement_b" name="placement_b" required
+                        class="w-full rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-kerno-green file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-[#a6e619] focus:border-kerno-green focus:outline-none">
+                </div>
+            </div>
+
+            <div id="single-fields" class="mb-2 hidden">
+                <label for="placement_single" class="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-500">Placement File</label>
+                <input type="file" id="placement_single" name="placement_single"
+                    class="w-full rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-kerno-green file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-[#a6e619] focus:border-kerno-green focus:outline-none">
+            </div>
+
+            <button type="submit" id="submit-step1"
+                class="portal-interactive mt-6 w-full rounded bg-kerno-green px-4 py-3 text-sm font-bold uppercase tracking-widest text-black transition hover:bg-[#a6e619] hover:shadow-[0_0_18px_rgba(190,255,56,0.25)]">
+                RUN VALIDATION
+            </button>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('step1-form');
+        const modeRadios = document.querySelectorAll('input[name="mode"]');
+        const modeOptions = document.querySelectorAll('.mode-option');
+        
+        const doubleFields = document.getElementById('double-fields');
+        const singleFields = document.getElementById('single-fields');
+        
+        const placementT = document.getElementById('placement_t');
+        const placementB = document.getElementById('placement_b');
+        const placementSingle = document.getElementById('placement_single');
+        const submitBtn = document.getElementById('submit-step1');
+
+        function applyMode(mode) {
+            const isDouble = mode === 'double';
+            
+            // Toggle visibility
+            doubleFields.classList.toggle('hidden', !isDouble);
+            singleFields.classList.toggle('hidden', isDouble);
+
+            // IMPORTANT FIX: Disable inactive fields so they are NOT sent to Django.
+            // This prevents Django from crashing when it looks for missing files.
+            placementT.disabled = !isDouble;
+            placementT.required = isDouble;
+            
+            placementB.disabled = !isDouble;
+            placementB.required = isDouble;
+            
+            placementSingle.disabled = isDouble;
+            placementSingle.required = !isDouble;
+
+            // Update styling for the radio buttons
+            modeOptions.forEach(function (label) {
+                const radio = label.querySelector('input[type="radio"]');
+                const isChecked = radio.value === mode;
+                
+                label.classList.toggle('border-kerno-green', isChecked);
+                label.classList.toggle('bg-kerno-green/10', isChecked);
+                label.classList.toggle('border-gray-700', !isChecked);
+                label.classList.toggle('bg-[#111111]', !isChecked);
+                
+                const title = label.querySelector('span');
+                title.classList.toggle('text-kerno-green', isChecked);
+                title.classList.toggle('text-gray-300', !isChecked);
+            });
+        }
+
+        // Bind radio change events
+        modeRadios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                applyMode(this.value);
+            });
+        });
+
+        // IMPORTANT FIX: Bind processing text to the FORM submit, NOT the button click.
+        // This ensures HTML5 validation (like "File is missing") completes before the form locks.
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) {
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            // Safety reset in case of a quick backend response or file download
+            setTimeout(function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'RUN VALIDATION';
+            }, 4000);
+        });
+
+        // Initialize state on page load
+        applyMode('double');
+    });
+</script>
+{% endblock %}

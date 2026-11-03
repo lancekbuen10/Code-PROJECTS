@@ -1,0 +1,77 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<div class="mb-8 border-b border-gray-800 pb-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-light text-white tracking-tight">
+            Device Loading <span class="text-kerno-green font-medium">Generator</span>
+        </h2>
+        <a href="{% url 'dashboard' %}" class="text-sm text-gray-400 hover:text-kerno-green transition-colors border border-gray-800 px-4 py-2 rounded bg-[#111111]">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Django Error/Success Messages -->
+{% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+            <div class="p-4 rounded border {% if message.tags == 'error' %}bg-red-900/30 text-red-400 border-red-800{% elif message.tags == 'warning' %}bg-yellow-900/30 text-yellow-400 border-yellow-800{% else %}bg-green-900/30 text-green-400 border-green-800{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- The Upload Form -->
+<div class="bg-kerno-panel border border-gray-800 rounded-lg p-8">
+    <p class="text-gray-400 mb-6 text-sm">Upload your files below to automatically generate the setup sheet.</p>
+    
+    <form method="POST" action="{% url 'device_loading' %}" enctype="multipart/form-data" class="space-y-6 max-w-2xl">
+        {% csrf_token %}
+        
+        <!-- BOM File Input -->
+        <div class="flex flex-col">
+            <label for="bom_file" class="text-sm font-medium text-gray-300 mb-2">1. Upload BOM File (.xlsx)</label>
+            <input type="file" name="bom_file" id="bom_file" accept=".xlsx,.xls" required
+                class="block w-full text-sm text-gray-400 
+                       file:mr-4 file:py-2 file:px-4 
+                       file:rounded file:border-0 
+                       file:text-sm file:font-semibold 
+                       file:bg-[#111111] file:text-white file:border file:border-gray-700
+                       hover:file:bg-gray-800 hover:file:cursor-pointer hover:file:text-kerno-green transition-colors">
+        </div>
+
+        <!-- Placement File Input -->
+        <div class="flex flex-col">
+            <label for="placement_file" class="text-sm font-medium text-gray-300 mb-2">2. Upload Placement File (.csv)</label>
+            <input type="file" name="placement_file" id="placement_file" accept=".csv" required
+                class="block w-full text-sm text-gray-400 
+                       file:mr-4 file:py-2 file:px-4 
+                       file:rounded file:border-0 
+                       file:text-sm file:font-semibold 
+                       file:bg-[#111111] file:text-white file:border file:border-gray-700
+                       hover:file:bg-gray-800 hover:file:cursor-pointer hover:file:text-kerno-green transition-colors">
+        </div>
+
+        <!-- Machine Setup Input (New) -->
+        <div class="flex flex-col">
+            <label for="feeder_setup_file" class="text-sm font-medium text-gray-300 mb-2">3. Upload Machine Setup (.csv) [Optional]</label>
+            <input type="file" name="feeder_setup_file" id="feeder_setup_file" accept=".csv"
+                class="block w-full text-sm text-gray-400 
+                       file:mr-4 file:py-2 file:px-4 
+                       file:rounded file:border-0 
+                       file:text-sm file:font-semibold 
+                       file:bg-[#111111] file:text-white file:border file:border-gray-700
+                       hover:file:bg-gray-800 hover:file:cursor-pointer hover:file:text-kerno-green transition-colors">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-[#111111] border border-gray-700 hover:border-kerno-green text-white font-medium py-3 px-4 rounded transition-colors duration-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-kerno-green">
+                Generate Setup Sheet
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

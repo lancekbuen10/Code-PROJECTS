@@ -1,0 +1,161 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<style>
+    /* Style all Django text/email/password inputs for dark mode */
+    .kerno-form input[type="text"],
+    .kerno-form input[type="email"],
+    .kerno-form input[type="password"] {
+        width: 100%;
+        background-color: #111111;
+        border: 1px solid #374151;
+        color: #f3f4f6;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: all 0.2s ease-in-out;
+        margin-top: 0.25rem;
+    }
+    
+    .kerno-form input:focus {
+        border-color: #BEFF38;
+        box-shadow: 0 0 0 1px rgba(190, 255, 56, 0.5);
+    }
+
+    /* Style checkboxes to match the modern theme */
+    .kerno-form input[type="checkbox"] {
+        accent-color: #BEFF38;
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-right: 0.75rem;
+        cursor: pointer;
+    }
+
+    /* Clean up Django's messy help text */
+    .kerno-helptext {
+        color: #6b7280;
+        font-size: 0.75rem;
+        margin-top: 0.4rem;
+        line-height: 1.4;
+    }
+    .kerno-helptext ul {
+        list-style-type: disc;
+        padding-left: 1.2rem;
+        margin-top: 0.25rem;
+    }
+    .kerno-helptext li {
+        margin-bottom: 0.15rem;
+    }
+    
+    .kerno-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #9ca3af;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+</style>
+
+<div class="flex justify-between items-end mb-8 border-b border-gray-800 pb-6">
+    <div>
+        <h1 class="text-3xl font-light text-white tracking-tight">
+            Manage <span class="text-kerno-green font-medium">{{ target_user.username }}</span>
+        </h1>
+        <p class="text-sm text-gray-400 mt-2">Modify employee credentials and access levels.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="text-sm text-gray-400 hover:text-white transition-colors">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+{% if messages %}
+<div class="mb-6 space-y-2">
+    {% for message in messages %}
+    <div class="p-4 bg-kerno-green/10 border border-kerno-green text-kerno-green rounded-lg text-sm shadow-[0_0_10px_rgba(190,255,56,0.1)]">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    
+    <div class="bg-kerno-panel border border-gray-800 rounded-lg p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-kerno-green"></div>
+        <h2 class="text-xl font-medium text-white mb-6">Profile Details</h2>
+        
+        <form method="POST" class="kerno-form space-y-5">
+            {% csrf_token %}
+            {% for field in info_form %}
+                
+                {% if field.field.widget.input_type == 'checkbox' %}
+                    <div class="flex flex-col mt-4 p-4 bg-[#111111] border border-gray-800 rounded">
+                        <div class="flex items-center">
+                            {{ field }}
+                            <label class="text-sm text-gray-200 font-medium cursor-pointer">{{ field.label }}</label>
+                        </div>
+                        {% if field.help_text %}
+                            <div class="kerno-helptext ml-6">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                    </div>
+                
+                {% else %}
+                    <div class="flex flex-col">
+                        <label class="kerno-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="kerno-helptext">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-[10px] text-red-500 mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+            {% endfor %}
+            <button type="submit" name="update_info" class="w-full mt-8 bg-kerno-green hover:bg-[#a6e619] text-black font-semibold py-3 px-4 rounded transition-colors shadow-[0_0_15px_rgba(190,255,56,0.1)] hover:shadow-[0_0_20px_rgba(190,255,56,0.25)]">
+                Save Changes
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-kerno-panel border border-gray-800 rounded-lg p-8 shadow-xl relative overflow-hidden h-fit">
+        <div class="absolute top-0 left-0 w-full h-1 bg-yellow-500"></div>
+        <h2 class="text-xl font-medium text-white mb-2">Force Password Reset</h2>
+        <p class="text-sm text-gray-400 mb-8">Set a new password for this user. They will be required to use it upon their next login.</p>
+        
+        <form method="POST" class="kerno-form space-y-5">
+            {% csrf_token %}
+            {% for field in password_form %}
+                <div class="flex flex-col">
+                    <label class="kerno-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="kerno-helptext">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-[10px] text-red-500 mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" name="reset_password" class="w-full mt-8 border border-yellow-500/50 text-yellow-500 hover:bg-yellow-500 hover:text-black font-semibold py-3 px-4 rounded transition-colors">
+                Reset Password
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-8 bg-[#111111] border border-red-900/40 rounded-lg p-8 shadow-xl relative overflow-hidden">
+     <div class="absolute top-0 left-0 w-1 h-full bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]"></div>
+     <h2 class="text-xl font-medium text-red-500 mb-2 pl-4">Danger Zone</h2>
+     <p class="text-sm text-gray-400 mb-6 pl-4">Deleting this user will permanently remove them from the system. This action cannot be undone.</p>
+     
+     <form action="{% url 'delete_employee' target_user.id %}" method="POST" class="pl-4">
+         {% csrf_token %}
+         <button type="submit" onclick="return confirm('WARNING: Are you absolutely sure you want to permanently delete {{ target_user.username }}?');" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 px-6 rounded transition-colors text-sm">
+             Delete User Account
+         </button>
+     </form>
+</div>
+{% endblock %}

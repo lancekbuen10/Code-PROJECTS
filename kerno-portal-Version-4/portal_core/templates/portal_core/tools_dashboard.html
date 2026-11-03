@@ -1,0 +1,250 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<div class="mx-auto mt-10 max-w-6xl">
+    <a href="{% url 'dashboard' %}" data-rate-limited-action class="portal-interactive mb-6 inline-flex items-center rounded border border-gray-700 bg-[#111111]/70 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Dashboard</a>
+
+    <!-- MAIN TOOL LIBRARY -->
+    <section id="tools-folder-view" class="portal-glass portal-reveal overflow-hidden rounded-lg border border-gray-800 bg-kerno-panel shadow-2xl">
+        <div class="relative border-b border-gray-800 bg-[#111111]/80 px-6 py-6">
+            <div class="absolute inset-x-0 top-0 h-1 bg-kerno-green"></div>
+            <p class="portal-kicker portal-reveal portal-delay-1 mb-2 text-xs font-bold uppercase tracking-[0.2em] text-kerno-green">Tools</p>
+            <h2 class="portal-reveal portal-delay-2 text-3xl font-light tracking-tight text-white">Tool Library</h2>
+            <p class="portal-reveal portal-delay-3 mt-2 max-w-2xl text-sm text-gray-400">Select a tool folder to open its workflow.</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3">
+            <!-- DEVICE LOADING TOOL FOLDER -->
+            <button type="button" id="open-device-loading-tool" data-rate-limited-action class="portal-folder-card portal-glass portal-interactive group text-left rounded-lg border border-gray-800 bg-[#111111] p-6 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)]">
+                <div class="mb-5 flex h-12 w-16 items-center justify-center rounded border border-kerno-green/50 bg-kerno-green/10 text-kerno-green transition group-hover:bg-kerno-green group-hover:text-black">
+                    <span class="text-2xl font-light">01</span>
+                </div>
+                <h3 class="text-xl font-medium text-white mb-2">Device Loading List</h3>
+                <p class="text-sm text-gray-400">Modify BOM, run validation, generate feeder lists, and export the final WI formatting.</p>
+                <div class="mt-6 flex items-center justify-between gap-3">
+                    <span class="rounded border border-kerno-green/40 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-kerno-green">Available</span>
+                    <span class="inline-flex rounded bg-kerno-green px-3 py-2 text-xs font-bold uppercase tracking-widest text-black">Open Tool</span>
+                </div>
+            </button>
+
+            <!-- PRODUCT TOOLS -->
+            <div class="portal-folder-card portal-glass rounded-lg border border-gray-800 bg-[#111111] p-6 opacity-60">
+                <div class="mb-5 flex h-12 w-16 items-center justify-center rounded border border-gray-700 bg-kerno-bg text-gray-500">
+                    <span class="text-2xl font-light">02</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-400 mb-2">Product Tools</h3>
+                <p class="text-sm text-gray-500">Reserved for future product workflows.</p>
+                <div class="mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500">Coming Soon</div>
+            </div>
+
+            <!-- PROCESS TOOLS -->
+            <div class="portal-folder-card portal-glass rounded-lg border border-gray-800 bg-[#111111] p-6 opacity-60">
+                <div class="mb-5 flex h-12 w-16 items-center justify-center rounded border border-gray-700 bg-kerno-bg text-gray-500">
+                    <span class="text-2xl font-light">03</span>
+                </div>
+                <h3 class="text-xl font-medium text-gray-400 mb-2">Process Tools</h3>
+                <p class="text-sm text-gray-500">Reserved for future process workflows.</p>
+                <div class="mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500">Coming Soon</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKFLOW SUBMENU FOR DEVICE LOADING -->
+    <section id="device-loading-workflow" class="portal-glass hidden overflow-hidden rounded-lg border border-gray-800 bg-kerno-panel shadow-2xl">
+        <div class="relative border-b border-gray-800 bg-[#111111]/80 px-6 py-6">
+            <div class="absolute inset-x-0 top-0 h-1 bg-kerno-green"></div>
+            <button type="button" id="back-to-tool-library" data-rate-limited-action class="portal-interactive mb-5 inline-flex items-center rounded border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Tools</button>
+            <p class="portal-kicker portal-reveal portal-delay-1 mb-2 text-xs font-bold uppercase tracking-[0.2em] text-kerno-green">Tool 1</p>
+            <h2 class="portal-reveal portal-delay-2 text-3xl font-light tracking-tight text-white">Device Loading List Workflow</h2>
+            <p class="mt-2 max-w-2xl text-sm text-gray-400">Complete the pipeline step-by-step from formatting your BOM to the final WI export.</p>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-5">
+                <label class="inline-flex cursor-pointer items-center gap-3 rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">
+                    <input type="checkbox" id="step1-acknowledgement-checkbox" class="h-4 w-4 accent-kerno-green">
+                    <span>Acknowledge Step 1 completed</span>
+                </label>
+            </div>
+
+            <div class="mb-7">
+                <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Preparation</p>
+                <a href="{% url 'bom_modifier' %}" data-rate-limited-action class="portal-glass portal-interactive group flex flex-col justify-between gap-5 rounded-lg border border-gray-700 bg-[#111111] p-6 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)] sm:flex-row sm:items-center">
+                    <div>
+                        <div class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-kerno-green">BOM Modifier</div>
+                        <h3 class="text-xl font-medium text-white">Prepare and standardize the BOM</h3>
+                        <p class="mt-2 text-sm text-gray-400">Clean the raw file and expand reference designator ranges before starting the production workflow.</p>
+                    </div>
+                    <span class="shrink-0 rounded bg-kerno-green px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors group-hover:bg-[#a6e619]">Open Modifier</span>
+                </a>
+            </div>
+
+            <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Production Workflow</p>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <a href="{% url 'step1_validate' %}" data-rate-limited-action class="portal-glass portal-interactive group block rounded-lg border border-kerno-green/50 bg-[#111111] p-5 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)]">
+                    <div class="mb-5 flex items-start justify-between gap-3">
+                        <div class="text-3xl font-light text-kerno-green">01</div>
+                        <span id="step1-status-label" class="rounded border border-kerno-green/40 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-kerno-green">Start</span>
+                    </div>
+                    <h3 class="mb-2 font-medium text-white">Validate BOM</h3>
+                    <p class="text-sm text-gray-400">Compare the BOM with Top and Bottom placement files.</p>
+                    <div class="mt-5 inline-flex rounded bg-kerno-green px-3 py-2 text-xs font-bold uppercase tracking-widest text-black">Open Step 1</div>
+                </a>
+
+                <a href="{% url 'step2_generate' %}" data-rate-limited-action class="workflow-step-card portal-glass portal-interactive group block rounded-lg border border-gray-800 bg-[#111111] p-5 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)]" data-step-lockable data-step-name="2A" data-completion-key="portal-step2a-completed">
+                    <div class="mb-5 flex items-start justify-between gap-3">
+                        <div class="text-3xl font-light text-kerno-green">2A</div>
+                        <span class="step-status-label rounded border border-gray-700 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Locked</span>
+                    </div>
+                    <h3 class="mb-2 font-medium text-white">Generate Feeder Input</h3>
+                    <p class="text-sm text-gray-400">Merge placement, feeder setup, and Min/Max data.</p>
+                    <div class="step-action-label mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500">Complete Step 1 First</div>
+                </a>
+
+                <a href="{% url 'step2_combine' %}" data-rate-limited-action class="workflow-step-card portal-glass portal-interactive group block rounded-lg border border-gray-800 bg-[#111111] p-5 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)]" data-step-lockable data-step-name="2B" data-completion-key="portal-step2b-completed">
+                    <div class="mb-5 flex items-start justify-between gap-3">
+                        <div class="text-3xl font-light text-kerno-green">2B</div>
+                        <span class="step-status-label rounded border border-gray-700 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Locked</span>
+                    </div>
+                    <h3 class="mb-2 font-medium text-white">Combine Top / Bottom</h3>
+                    <p class="text-sm text-gray-400">Join both feeder outputs into one sorted workbook.</p>
+                    <div class="step-action-label mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500">Complete Step 1 First</div>
+                </a>
+
+                <a href="{% url 'step3_final' %}" data-rate-limited-action class="workflow-step-card portal-glass portal-interactive group block rounded-lg border border-gray-800 bg-[#111111] p-5 transition hover:border-kerno-green hover:shadow-[0_0_20px_rgba(190,255,56,0.12)]" data-step-lockable data-step-name="3" data-completion-key="portal-step3-completed">
+                    <div class="mb-5 flex items-start justify-between gap-3">
+                        <div class="text-3xl font-light text-kerno-green">03</div>
+                        <span class="step-status-label rounded border border-gray-700 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Locked</span>
+                    </div>
+                    <h3 class="mb-2 font-medium text-white">Generate Final WI</h3>
+                    <p class="text-sm text-gray-400">Apply the Kerno template and export the factory-ready WI.</p>
+                    <div class="step-action-label mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500">Complete Step 1 First</div>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    const toolsFolderView = document.getElementById('tools-folder-view');
+    const deviceLoadingWorkflow = document.getElementById('device-loading-workflow');
+    const openDeviceLoadingTool = document.getElementById('open-device-loading-tool');
+    const backToToolLibrary = document.getElementById('back-to-tool-library');
+    const step1AcknowledgementCheckbox = document.getElementById('step1-acknowledgement-checkbox');
+    const step1StatusLabel = document.getElementById('step1-status-label');
+    const lockableStepCards = document.querySelectorAll('[data-step-lockable]');
+
+    function isStep1Acknowledged() {
+        try {
+            return localStorage.getItem('portal-step1-acknowledged') === 'true';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function setStep1Acknowledged(isAcknowledged) {
+        try {
+            localStorage.setItem('portal-step1-acknowledged', isAcknowledged ? 'true' : 'false');
+        } catch (error) {}
+    }
+
+    function isWorkflowStepCompleted(completionKey) {
+        if (!completionKey) {
+            return false;
+        }
+
+        try {
+            return localStorage.getItem(completionKey) === 'true';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function showToolLibrary() {
+        toolsFolderView.classList.remove('hidden');
+        deviceLoadingWorkflow.classList.add('hidden');
+        if (window.location.search.includes('workflow=device-loading')) {
+            history.replaceState(null, '', window.location.pathname);
+        }
+    }
+
+    function showWorkflow() {
+        toolsFolderView.classList.add('hidden');
+        deviceLoadingWorkflow.classList.remove('hidden');
+        syncWorkflow();
+    }
+
+    function syncWorkflow() {
+        const unlocked = isStep1Acknowledged();
+
+        if (step1AcknowledgementCheckbox) {
+            step1AcknowledgementCheckbox.checked = unlocked;
+        }
+
+        if (step1StatusLabel) {
+            step1StatusLabel.textContent = unlocked ? 'Done' : 'Start';
+        }
+
+        lockableStepCards.forEach(function (card) {
+            const statusLabel = card.querySelector('.step-status-label');
+            const actionLabel = card.querySelector('.step-action-label');
+            const completed = unlocked && isWorkflowStepCompleted(card.dataset.completionKey);
+
+            card.setAttribute('aria-disabled', String(!unlocked));
+            card.classList.toggle('opacity-60', !unlocked);
+            card.classList.toggle('cursor-not-allowed', !unlocked);
+            card.classList.toggle('border-kerno-green/50', unlocked);
+            card.classList.toggle('border-gray-800', !unlocked);
+
+            if (statusLabel) {
+                statusLabel.textContent = !unlocked ? 'Locked' : completed ? 'Done' : 'Open';
+                statusLabel.className = unlocked
+                    ? 'step-status-label rounded border border-kerno-green/40 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-kerno-green'
+                    : 'step-status-label rounded border border-gray-700 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500';
+            }
+
+            if (actionLabel) {
+                actionLabel.textContent = unlocked
+                    ? 'Open Step ' + card.dataset.stepName
+                    : 'Complete Step 1 First';
+                actionLabel.className = unlocked
+                    ? 'step-action-label mt-5 inline-flex rounded bg-kerno-green px-3 py-2 text-xs font-bold uppercase tracking-widest text-black'
+                    : 'step-action-label mt-5 inline-flex rounded border border-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-500';
+            }
+        });
+    }
+
+    openDeviceLoadingTool.addEventListener('click', showWorkflow);
+
+    backToToolLibrary.addEventListener('click', showToolLibrary);
+
+    if (step1AcknowledgementCheckbox) {
+        step1AcknowledgementCheckbox.addEventListener('change', function () {
+            setStep1Acknowledged(this.checked);
+            syncWorkflow();
+        });
+    }
+
+    window.addEventListener('storage', function (event) {
+        if (event.key && event.key.indexOf('portal-step') === 0) {
+            syncWorkflow();
+        }
+    });
+
+    window.addEventListener('pageshow', function () {
+        syncWorkflow();
+    });
+    
+    lockableStepCards.forEach(function (card) {
+        card.addEventListener('click', function (event) {
+            if (!isStep1Acknowledged()) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    if (new URLSearchParams(window.location.search).get('workflow') === 'device-loading') {
+        showWorkflow();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<div class="mx-auto mt-10 max-w-3xl">
+    <a href="{% url 'tools_dashboard' %}?workflow=device-loading" data-rate-limited-action class="portal-interactive mb-6 inline-flex items-center rounded border border-gray-700 bg-[#111111]/70 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Workflow</a>
+    
+    {% if messages %}
+    <div class="portal-reveal mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg text-sm border
+            {% if message.tags == 'success' %} bg-kerno-green/10 border-kerno-green text-kerno-green shadow-[0_0_10px_rgba(190,255,56,0.1)]
+            {% elif message.tags == 'error' %} bg-red-500/10 border-red-500/40 text-red-400
+            {% else %} bg-gray-800/40 border-gray-700 text-gray-300 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="portal-glass portal-reveal overflow-hidden rounded-lg border border-gray-800 bg-kerno-panel shadow-2xl">
+        <div class="relative border-b border-gray-800 bg-[#111111]/80 px-6 py-6">
+            <div class="absolute inset-x-0 top-0 h-1 bg-kerno-green"></div>
+            <p class="portal-kicker mb-2 text-xs font-bold uppercase tracking-[0.2em] text-kerno-green">Tool 0</p>
+            <h2 class="text-3xl font-light tracking-tight text-white">Modify BOM Format</h2>
+            <p class="mt-2 max-w-2xl text-sm text-gray-400">Upload your raw BOM file. This tool will extract the required columns and expand all hyphenated reference designators.</p>
+        </div>
+
+        <form id="bom-modifier-form" method="POST" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <div class="mb-5">
+                <label for="bom_file" class="mb-2 block text-xs font-bold uppercase tracking-widest text-gray-500">Raw BOM File</label>
+                <input type="file" id="bom_file" name="bom_file" required accept=".xlsx,.xls"
+                    class="w-full rounded border border-gray-700 bg-[#111111]/80 px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded file:border-0 file:bg-kerno-green file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-[#a6e619] focus:border-kerno-green focus:outline-none">
+            </div>
+            
+            <button type="submit" id="submit-modifier"
+                class="portal-interactive mt-6 w-full rounded bg-kerno-green px-4 py-3 text-sm font-bold uppercase tracking-widest text-black transition hover:bg-[#a6e619] hover:shadow-[0_0_18px_rgba(190,255,56,0.25)]">
+                MODIFY BOM
+            </button>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('bom-modifier-form');
+        const submitBtn = document.getElementById('submit-modifier');
+        
+        form.addEventListener('submit', function () {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            setTimeout(function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'MODIFY BOM';
+            }, 3000);
+        });
+    });
+</script>
+{% endblock %}

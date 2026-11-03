@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kerno-bg': 'var(--portal-bg)',
+                        'kerno-panel': 'var(--portal-panel)',
+                        'kerno-green': 'var(--portal-accent)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('portal-theme') === 'light') {
+                    document.documentElement.classList.add('light-mode');
+                }
+            } catch (error) {}
+        })();
+    </script>
+    <style>
+        :root {
+            --portal-bg: #121212;
+            --portal-panel: #1c1c1c;
+            --portal-accent: #BEFF38;
+            --portal-surface: #111111;
+            --portal-border: #1f2937;
+            --portal-text: #f9fafb;
+            --portal-muted: #9ca3af;
+            --portal-glass: rgba(28, 28, 28, 0.72);
+            --portal-glass-strong: rgba(17, 17, 17, 0.86);
+            --portal-glow: rgba(190, 255, 56, 0.16);
+            --portal-pointer-x: 50%;
+            --portal-pointer-y: 20%;
+        }
+
+        html.light-mode {
+            --portal-bg: #f5f7f2;
+            --portal-panel: #ffffff;
+            --portal-accent: #5f8f00;
+            --portal-surface: #eef3e8;
+            --portal-border: #d7dfce;
+            --portal-text: #111827;
+            --portal-muted: #374151;
+            --portal-glass: rgba(255, 255, 255, 0.76);
+            --portal-glass-strong: rgba(255, 255, 255, 0.9);
+            --portal-glow: rgba(95, 143, 0, 0.13);
+        }
+
+        .portal-shell {
+            position: relative;
+            overflow-x: hidden;
+            isolation: isolate;
+        }
+
+        .portal-shell::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(115deg, rgba(190, 255, 56, 0.05), transparent 32%, rgba(255, 255, 255, 0.035) 64%, transparent),
+                radial-gradient(circle at var(--portal-pointer-x) var(--portal-pointer-y), var(--portal-glow), transparent 25rem),
+                radial-gradient(circle at 8% 12%, rgba(190, 255, 56, 0.055), transparent 18rem);
+            opacity: 0.9;
+            transition: background 180ms ease;
+        }
+
+        .portal-shell::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 72%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 72%);
+        }
+
+        body,
+        nav,
+        main,
+        section,
+        a,
+        button,
+        input,
+        div,
+        span,
+        p,
+        h1,
+        h2,
+        h3 {
+            transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+        }
+
+        @keyframes portal-rise-in {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes portal-toast-in {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 12px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .portal-glass {
+            background: var(--portal-glass);
+            border-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 22px 60px rgba(0, 0, 0, 0.28);
+        }
+
+        .portal-glass-strong {
+            background: var(--portal-glass-strong);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .portal-interactive {
+            transform: translateY(0);
+            will-change: transform;
+        }
+
+        .portal-interactive:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22), 0 0 22px rgba(190, 255, 56, 0.09);
+        }
+
+        .portal-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-kicker::before {
+            content: "";
+            width: 1.75rem;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.75;
+        }
+
+        .portal-folder-card {
+            position: relative;
+            isolation: isolate;
+            min-height: 16rem;
+        }
+
+        .portal-folder-card::before {
+            content: "";
+            position: absolute;
+            left: 1.25rem;
+            top: -0.55rem;
+            width: 6.25rem;
+            height: 1.15rem;
+            z-index: -1;
+            border: 1px solid rgba(190, 255, 56, 0.24);
+            border-bottom: 0;
+            border-radius: 0.45rem 0.45rem 0 0;
+            background: rgba(190, 255, 56, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .portal-folder-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(190, 255, 56, 0.08), transparent 38%, rgba(255, 255, 255, 0.04));
+            opacity: 0;
+            transition: opacity 180ms ease;
+        }
+
+        .portal-folder-card:hover::after {
+            opacity: 1;
+        }
+
+        .portal-reveal {
+            animation: portal-rise-in 520ms ease both;
+        }
+
+        .portal-delay-1 {
+            animation-delay: 70ms;
+        }
+
+        .portal-delay-2 {
+            animation-delay: 130ms;
+        }
+
+        .portal-delay-3 {
+            animation-delay: 190ms;
+        }
+
+        .portal-action-toast {
+            animation: portal-toast-in 180ms ease both;
+            background: rgba(17, 24, 39, 0.96) !important;
+            border-color: rgba(250, 204, 21, 0.55) !important;
+            color: #fef3c7 !important;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
+        }
+
+        html.light-mode .portal-action-toast {
+            background: rgba(17, 24, 39, 0.98) !important;
+            border-color: rgba(180, 83, 9, 0.7) !important;
+            color: #fff7ed !important;
+            box-shadow: 0 18px 46px rgba(17, 24, 39, 0.28);
+        }
+
+        .portal-dropzone {
+            position: relative;
+            display: grid;
+            min-height: 10.5rem;
+            place-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px dashed rgba(156, 163, 175, 0.48);
+            border-radius: 0.75rem;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(190, 255, 56, 0.07), transparent 55%),
+                rgba(17, 17, 17, 0.64);
+            isolation: isolate;
+        }
+
+        .portal-dropzone:hover,
+        .portal-dropzone:focus-within {
+            border-color: var(--portal-accent);
+            box-shadow: 0 0 0 3px rgba(190, 255, 56, 0.08), 0 18px 38px rgba(0, 0, 0, 0.2);
+        }
+
+        .portal-dropzone.has-file {
+            border-style: solid;
+            border-color: rgba(190, 255, 56, 0.58);
+            background:
+                linear-gradient(135deg, rgba(190, 255, 56, 0.1), transparent 62%),
+                rgba(17, 17, 17, 0.7);
+        }
+
+        .portal-dropzone.is-dragging {
+            border-style: solid;
+            border-color: var(--portal-accent);
+            box-shadow: inset 0 0 35px rgba(190, 255, 56, 0.09), 0 0 0 4px rgba(190, 255, 56, 0.1);
+        }
+
+        .portal-dropzone-content {
+            display: flex;
+            max-width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
+        }
+
+        .portal-dropzone.is-dragging .portal-dropzone-content {
+            filter: blur(4px);
+            opacity: 0.28;
+            transform: scale(0.985);
+        }
+
+        .portal-upload-icon {
+            display: grid;
+            width: 3rem;
+            height: 3rem;
+            place-items: center;
+            border: 1px solid rgba(190, 255, 56, 0.3);
+            border-radius: 0.65rem;
+            background: rgba(190, 255, 56, 0.08);
+            color: var(--portal-accent);
+        }
+
+        .portal-upload-name {
+            display: grid;
+            gap: 0.25rem;
+            width: 100%;
+            overflow: hidden;
+            color: var(--portal-text);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+
+        .portal-upload-file {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .portal-upload-help {
+            color: var(--portal-muted);
+            font-size: 0.75rem;
+        }
+
+        .portal-dropzone-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+            opacity: 0;
+            background: rgba(14, 22, 10, 0.2);
+            color: var(--portal-text);
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            transition: opacity 180ms ease;
+        }
+
+        .portal-dropzone.is-dragging .portal-dropzone-overlay {
+            opacity: 1;
+        }
+
+        .portal-file-input {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .portal-file-input:disabled {
+            cursor: not-allowed;
+        }
+
+        .portal-dropzone:has(.portal-file-input:disabled) {
+            pointer-events: none;
+            opacity: 0.45;
+        }
+
+        html.light-mode .portal-dropzone {
+            background:
+                radial-gradient(circle at 50% 0%, rgba(95, 143, 0, 0.08), transparent 55%),
+                rgba(255, 255, 255, 0.75);
+        }
+
+        html.light-mode .portal-dropzone.has-file {
+            background: linear-gradient(135deg, rgba(95, 143, 0, 0.1), rgba(255, 255, 255, 0.85));
+        }
+
+        main > *,
+        main section,
+        main form,
+        main a,
+        main button,
+        main .grid > div {
+            animation: portal-rise-in 420ms ease both;
+        }
+
+        main > *:nth-child(2),
+        main section:nth-child(2),
+        main .grid > *:nth-child(2) {
+            animation-delay: 70ms;
+        }
+
+        main > *:nth-child(3),
+        main section:nth-child(3),
+        main .grid > *:nth-child(3) {
+            animation-delay: 120ms;
+        }
+
+        main > *:nth-child(4),
+        main section:nth-child(4),
+        main .grid > *:nth-child(4) {
+            animation-delay: 170ms;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 1ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 1ms !important;
+            }
+        }
+
+        html.light-mode body {
+            color: var(--portal-text);
+        }
+
+        html.light-mode [class*="bg-[#121212]"],
+        html.light-mode [class*="bg-[#111111]"],
+        html.light-mode [class*="bg-[#151515]"] {
+            background-color: var(--portal-surface) !important;
+        }
+
+        html.light-mode [class*="border-gray-800"],
+        html.light-mode [class*="border-gray-700"],
+        html.light-mode [class*="border-gray-600"] {
+            border-color: var(--portal-border) !important;
+        }
+
+        html.light-mode .text-white,
+        html.light-mode .text-gray-200 {
+            color: var(--portal-text) !important;
+        }
+
+        html.light-mode .text-gray-300,
+        html.light-mode .text-gray-400,
+        html.light-mode .text-gray-500 {
+            color: var(--portal-muted) !important;
+        }
+
+        html.light-mode .portal-brand {
+            background-color: #ffffff !important;
+            border-color: #b7c3ac !important;
+            color: #111827 !important;
+            box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08);
+        }
+
+        html.light-mode nav {
+            box-shadow: 0 1px 0 rgba(17, 24, 39, 0.08), 0 12px 30px rgba(17, 24, 39, 0.05);
+        }
+
+        html.light-mode .text-kerno-green {
+            color: #4d7c00 !important;
+        }
+
+        html.light-mode .activity-log-row:hover {
+            background-color: #eef3e8 !important;
+        }
+
+        html.light-mode .activity-log-row:hover td {
+            color: var(--portal-text) !important;
+        }
+
+        html.light-mode .activity-log-row:hover .text-kerno-green {
+            color: #4d7c00 !important;
+        }
+
+        html.light-mode .bg-kerno-green {
+            background-color: #6fa300 !important;
+        }
+
+        html.light-mode .border-kerno-green {
+            border-color: #6fa300 !important;
+        }
+
+        html.light-mode input {
+            color: var(--portal-text) !important;
+        }
+
+        html.light-mode input::placeholder {
+            color: #6b7280;
+        }
+
+        html.light-mode .hover\:text-white:hover {
+            color: var(--portal-text) !important;
+        }
+
+        body .portal-action-toast,
+        html.light-mode body .portal-action-toast,
+        html.light-mode body [id="portal-action-toast"] {
+            background: #111827 !important;
+            border-color: #facc15 !important;
+            color: #fef3c7 !important;
+            box-shadow: 0 18px 46px rgba(17, 24, 39, 0.32) !important;
+        }
+    </style>
+</head>
+<body class="portal-shell bg-kerno-bg text-gray-200 font-sans min-h-screen flex flex-col">
+
+    <nav class="portal-glass-strong px-8 flex items-center justify-between border-b border-gray-800/50 bg-[#121212] z-50">
+        
+        <div class="flex items-center py-4">
+            <div class="hidden sm:block">
+                <span class="portal-brand border border-gray-700 bg-[#1c1c1c]/50 text-gray-400 text-[10px] font-semibold uppercase tracking-[0.2em] px-3 py-1.5 rounded">
+                    Engineering Portal
+                </span>
+            </div>
+        </div>
+        
+        <!-- Navigation Links: Only Activity Logs remains -->
+        <div class="flex items-center space-x-8 text-[13px] font-medium text-white h-full">
+            {% if user.is_staff %}
+                <a href="{% url 'activity_logs' %}" class="hover:text-kerno-green transition-colors font-bold text-kerno-green">Activity Logs</a>
+            {% endif %}
+        </div>
+        
+        <div class="flex items-center gap-4 py-4">
+            <button
+                type="button"
+                id="theme-toggle"
+                data-rate-limited-action
+                class="inline-flex items-center gap-2 rounded border border-gray-700 bg-[#111111] px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-gray-300 transition hover:border-kerno-green hover:text-white"
+                aria-pressed="false"
+            >
+                <span class="h-2.5 w-2.5 rounded-full bg-kerno-green shadow-[0_0_8px_#BEFF38]"></span>
+                <span id="theme-toggle-label">Light</span>
+            </button>
+
+            {% if user.is_authenticated %}
+                <div class="hidden md:flex items-center space-x-2 mr-6 pr-6 border-r border-gray-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-kerno-green shadow-[0_0_8px_#BEFF38]"></span>
+                    <span class="text-[10px] uppercase tracking-[0.15em] text-gray-400 font-bold">
+                        Active Session: <span class="text-white ml-1">{{ user.username }}</span>
+                    </span>
+                </div>
+                
+                <form method="POST" action="{% url 'logout' %}" class="inline flex items-center">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs text-gray-500 hover:text-red-400 transition-colors uppercase tracking-widest font-bold">
+                        Sign Out
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-xs text-kerno-green hover:text-white transition-colors uppercase tracking-widest font-bold">
+                    Sign In
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="relative z-10 flex-grow w-full max-w-7xl mx-auto px-8 py-10">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <div id="portal-action-toast" class="portal-action-toast fixed bottom-6 left-1/2 z-[120] hidden max-w-sm rounded border border-yellow-400/40 bg-[#111111]/90 px-4 py-3 text-sm font-medium text-yellow-100 shadow-2xl backdrop-blur">
+        Too much interactions, try again later.
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleLabel = document.getElementById('theme-toggle-label');
+        const portalActionToast = document.getElementById('portal-action-toast');
+        const portalActionHits = [];
+        let portalActionToastTimeout;
+
+        function syncThemeToggle() {
+            const isLightMode = document.documentElement.classList.contains('light-mode');
+            if (themeToggle && themeToggleLabel) {
+                themeToggle.setAttribute('aria-pressed', String(isLightMode));
+                themeToggleLabel.textContent = isLightMode ? 'Dark' : 'Light';
+            }
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function () {
+                const isLightMode = document.documentElement.classList.toggle('light-mode');
+                try {
+                    localStorage.setItem('portal-theme', isLightMode ? 'light' : 'dark');
+                } catch (error) {}
+                syncThemeToggle();
+            });
+            syncThemeToggle();
+        }
+
+        document.addEventListener('pointermove', function (event) {
+            document.documentElement.style.setProperty('--portal-pointer-x', event.clientX + 'px');
+            document.documentElement.style.setProperty('--portal-pointer-y', event.clientY + 'px');
+        });
+
+        function showPortalActionToast() {
+            if (!portalActionToast) {
+                return;
+            }
+            portalActionToast.classList.remove('hidden');
+            clearTimeout(portalActionToastTimeout);
+            portalActionToastTimeout = setTimeout(function () {
+                portalActionToast.classList.add('hidden');
+            }, 2200);
+        }
+
+        function isPortalActionLimited() {
+            const now = Date.now();
+            while (portalActionHits.length && now - portalActionHits[0] > 2600) {
+                portalActionHits.shift();
+            }
+            portalActionHits.push(now);
+            return portalActionHits.length > 8;
+        }
+
+        document.addEventListener('click', function (event) {
+            const action = event.target.closest('[data-rate-limited-action]');
+            if (action && isPortalActionLimited()) {
+                event.preventDefault();
+                event.stopPropagation();
+                showPortalActionToast();
+            }
+        }, true);
+
+        function resetUploadForms() {
+            document.querySelectorAll('input[type="file"]').forEach(function (input) {
+                input.value = '';
+                input.dispatchEvent(new Event('change'));
+            });
+        }
+
+        function initializeFileDropzones() {
+            document.querySelectorAll('input[type="file"]:not([data-dropzone-ready])').forEach(function (input, index) {
+                input.dataset.dropzoneReady = 'true';
+                input.classList.add('portal-file-input');
+
+                if (!input.id) {
+                    input.id = 'portal-file-' + index;
+                }
+
+                const dropzone = document.createElement('div');
+                dropzone.className = 'portal-dropzone';
+                dropzone.dataset.defaultText = input.multiple ? 'Choose files or drag them here' : 'Choose a file or drag it here';
+
+                const content = document.createElement('div');
+                content.className = 'portal-dropzone-content';
+                content.setAttribute('aria-hidden', 'true');
+                content.innerHTML = `
+                    <span class="portal-upload-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 16V4M12 4L7.5 8.5M12 4l4.5 4.5M5 14.5V19h14v-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="portal-upload-name"></span>
+                    <span class="portal-upload-help">Drop to attach - click to browse</span>
+                `;
+
+                const overlay = document.createElement('div');
+                overlay.className = 'portal-dropzone-overlay';
+                overlay.innerHTML = '<span>Drop file here</span>';
+
+                input.parentNode.insertBefore(dropzone, input);
+                dropzone.appendChild(content);
+                dropzone.appendChild(overlay);
+                dropzone.appendChild(input);
+
+                let dragDepth = 0;
+                const fileName = content.querySelector('.portal-upload-name');
+
+                function updateFileState() {
+                    const selectedFiles = Array.from(input.files || []);
+                    fileName.textContent = '';
+
+                    if (selectedFiles.length) {
+                        selectedFiles.forEach(function (selectedFile) {
+                            const fileItem = document.createElement('span');
+                            fileItem.className = 'portal-upload-file';
+                            fileItem.textContent = selectedFile.name;
+                            fileName.appendChild(fileItem);
+                        });
+                    } else {
+                        fileName.textContent = dropzone.dataset.defaultText;
+                    }
+
+                    dropzone.classList.toggle('has-file', selectedFiles.length > 0);
+                    dropzone.setAttribute(
+                        'aria-label',
+                        selectedFiles.length
+                            ? 'Selected files: ' + selectedFiles.map(function (file) { return file.name; }).join(', ')
+                            : dropzone.dataset.defaultText
+                    );
+                }
+
+                dropzone.addEventListener('dragenter', function (event) {
+                    event.preventDefault();
+                    dragDepth += 1;
+                    if (!input.disabled) {
+                        dropzone.classList.add('is-dragging');
+                    }
+                });
+
+                dropzone.addEventListener('dragover', function (event) {
+                    event.preventDefault();
+                    if (event.dataTransfer) {
+                        event.dataTransfer.dropEffect = 'copy';
+                    }
+                });
+
+                dropzone.addEventListener('dragleave', function () {
+                    dragDepth = Math.max(0, dragDepth - 1);
+                    if (dragDepth === 0) {
+                        dropzone.classList.remove('is-dragging');
+                    }
+                });
+
+                dropzone.addEventListener('drop', function (event) {
+                    event.preventDefault();
+                    dragDepth = 0;
+                    dropzone.classList.remove('is-dragging');
+
+                    if (input.disabled || !event.dataTransfer || !event.dataTransfer.files.length) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    Array.from(event.dataTransfer.files).forEach(function (file, fileIndex) {
+                        if (input.multiple || fileIndex === 0) {
+                            transfer.items.add(file);
+                        }
+                    });
+                    input.files = transfer.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+
+                input.addEventListener('change', function () {
+                    input.setCustomValidity('');
+                    updateFileState();
+                });
+                updateFileState();
+            });
+        }
+
+        initializeFileDropzones();
+
+        window.addEventListener('pageshow', function (event) {
+            const navigationEntry = performance.getEntriesByType('navigation')[0];
+            const isBackNavigation = event.persisted || (navigationEntry && navigationEntry.type === 'back_forward');
+
+            if (isBackNavigation) {
+                resetUploadForms();
+            }
+        });
+
+        document.querySelectorAll('form.file-check-form').forEach(function (form) {
+            form.addEventListener('submit', async function (event) {
+                if (isPortalActionLimited()) {
+                    event.preventDefault();
+                    showPortalActionToast();
+                    return;
+                }
+
+                const invalidCountInput = Array.from(form.querySelectorAll('input[type="file"][data-required-count]'))
+                    .find(function (input) {
+                        const requiredCount = Number(input.dataset.requiredCount);
+                        return requiredCount && input.files.length !== requiredCount;
+                    });
+
+                if (invalidCountInput) {
+                    event.preventDefault();
+                    const requiredCount = Number(invalidCountInput.dataset.requiredCount);
+                    invalidCountInput.setCustomValidity('Select exactly ' + requiredCount + ' files.');
+                    invalidCountInput.reportValidity();
+                    return;
+                }
+
+                const selectedFiles = Array.from(form.querySelectorAll('input[type="file"]'))
+                    .flatMap(function (input) {
+                        return Array.from(input.files || []).map(function (file) {
+                            return file.name;
+                        });
+                    });
+
+                const duplicateFile = selectedFiles.find(function (fileName, index) {
+                    return selectedFiles.indexOf(fileName) !== index;
+                });
+
+                if (duplicateFile) {
+                    alert('Same files are used. Please check if the Top and Bottom placement files should be different.');
+                }
+
+                if (form.dataset.downloadWorkflow === 'true') {
+                    event.preventDefault();
+                    await submitWorkflowDownloadForm(form);
+                }
+            });
+        });
+
+        function getDownloadFilename(disposition, fallback) {
+            const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+            const plainMatch = disposition.match(/filename="?([^"]+)"?/i);
+
+            if (utfMatch && utfMatch[1]) {
+                return decodeURIComponent(utfMatch[1]);
+            }
+
+            return plainMatch && plainMatch[1] ? plainMatch[1] : fallback;
+        }
+
+        function downloadBlob(blob, filename) {
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(function () {
+                URL.revokeObjectURL(downloadUrl);
+            }, 1000);
+        }
+
+        function markWorkflowStepComplete(form) {
+            const completionKey = form.dataset.completionKey;
+            if (!completionKey) {
+                return;
+            }
+
+            try {
+                localStorage.setItem(completionKey, 'true');
+            } catch (error) {}
+        }
+
+        function showWorkflowNextButton(form) {
+            const nextUrl = form.dataset.nextStepUrl;
+            const nextLabel = form.dataset.nextStepLabel || 'Continue';
+            if (!nextUrl) {
+                return;
+            }
+
+            let nextPanel = form.querySelector('[data-workflow-next-panel]');
+            if (!nextPanel) {
+                nextPanel = document.createElement('div');
+                nextPanel.dataset.workflowNextPanel = 'true';
+                nextPanel.className = 'mt-2 flex justify-end pt-6';
+                form.appendChild(nextPanel);
+            }
+
+            nextPanel.innerHTML = '';
+            const nextLink = document.createElement('a');
+            nextLink.href = nextUrl;
+            nextLink.className = 'inline-flex items-center gap-2 rounded bg-kerno-green px-5 py-3 text-xs font-bold uppercase tracking-widest text-black transition hover:bg-[#a6e619]';
+
+            const nextText = document.createElement('span');
+            nextText.textContent = nextLabel;
+
+            const nextArrow = document.createElement('span');
+            nextArrow.setAttribute('aria-hidden', 'true');
+            nextArrow.className = 'text-base leading-none';
+            nextArrow.innerHTML = '&rarr;';
+
+            nextLink.appendChild(nextText);
+            nextLink.appendChild(nextArrow);
+            nextPanel.appendChild(nextLink);
+        }
+
+        async function submitWorkflowDownloadForm(form) {
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton ? submitButton.textContent : '';
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Processing...';
+            }
+
+            try {
+                const response = await fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const disposition = response.headers.get('Content-Disposition') || '';
+
+                if (response.ok && disposition.toLowerCase().includes('attachment')) {
+                    const blob = await response.blob();
+                    downloadBlob(blob, getDownloadFilename(disposition, form.dataset.downloadFilename || 'download.xlsx'));
+                    markWorkflowStepComplete(form);
+                    showWorkflowNextButton(form);
+                    return;
+                }
+
+                const html = await response.text();
+                document.open();
+                document.write(html);
+                document.close();
+            } catch (error) {
+                HTMLFormElement.prototype.submit.call(form);
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kerno-bg': '#121212',
+                        'kerno-panel': '#1c1c1c',
+                        'kerno-green': '#BEFF38',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .kerno-chamfer-btn {
+            clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+        }
+        
+        /* Automatically style all Django text/password inputs */
+        .kerno-form input {
+            width: 100%;
+            background-color: #111111;
+            border: 1px solid #374151;
+            color: #f3f4f6;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* Green glow when the user clicks an input */
+        .kerno-form input:focus {
+            border-color: #BEFF38;
+            box-shadow: 0 0 0 1px rgba(190, 255, 56, 0.5);
+        }
+
+        /* Clean up Django's messy help text (like password rules) */
+        .kerno-helptext {
+            color: #6b7280;
+            font-size: 0.75rem;
+            margin-top: 0.35rem;
+            line-height: 1.4;
+        }
+        .kerno-helptext ul {
+            list-style-type: disc;
+            padding-left: 1.2rem;
+            margin-top: 0.25rem;
+        }
+        .kerno-helptext li {
+            margin-bottom: 0.15rem;
+        }
+    </style>
+</head>
+<body class="bg-kerno-bg text-gray-200 font-sans min-h-screen flex flex-col relative overflow-hidden">
+
+    <div class="absolute inset-0 z-0 opacity-40 bg-right bg-no-repeat bg-cover" 
+         style="background-image: url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop'); 
+                mask-image: linear-gradient(to right, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%); 
+                -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%);">
+    </div>
+
+    <nav class="px-8 flex items-center justify-between relative z-20 w-full border-b border-gray-800/50 bg-[#121212]/80 backdrop-blur-sm">
+        <div class="flex items-center py-4">
+            <a href="{% url 'login' %}" class="flex items-center space-x-2 transition-opacity hover:opacity-80">
+                <img src="{% static 'images/kernologo.png' %}" alt="Portal Icon" class="h-10 w-auto object-contain">
+                <span class="text-3xl font-medium text-kerno-green lowercase tracking-tight">portal</span>
+            </a>
+            <div class="ml-6 pl-6 border-l border-gray-800 hidden sm:block">
+                <span class="border border-gray-700 bg-[#1c1c1c]/50 text-gray-400 text-[10px] font-semibold uppercase tracking-[0.2em] px-3 py-1.5 rounded">
+                    Engineering Portal
+                </span>
+            </div>
+        </div>
+        
+        <div class="hidden lg:flex items-center space-x-8 text-[13px] font-medium text-white h-full">
+            <a href="#" class="hover:text-kerno-green transition-colors">Enterprise Servers</a>
+            <a href="#" class="hover:text-kerno-green transition-colors">Storage Systems</a>
+            <a href="#" class="hover:text-kerno-green transition-colors">Manufactured in the UAE</a>
+            <a href="#" class="hover:text-kerno-green transition-colors">Customer Support in UAE</a>
+        </div>
+
+        <div class="relative z-20 flex items-center py-4">
+            <a href="{% url 'login' %}" class="kerno-chamfer-btn bg-gray-200 hover:bg-white text-black font-semibold px-6 py-2.5 transition-colors text-sm mr-4">
+                Employee Login
+            </a>
+            <a href="#" class="kerno-chamfer-btn bg-kerno-green hover:bg-[#a6e619] text-black font-semibold px-8 py-2.5 transition-colors text-sm">
+                Contact Us
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center relative z-10 w-full max-w-7xl mx-auto px-8 py-10">
+        
+        <div class="w-1/2 pr-8 hidden md:block">
+            <h1 class="text-6xl font-light text-white leading-[1.1] tracking-tight mb-6">
+                Infrastructure <br>
+                Access <br>
+                <span class="text-kerno-green font-normal">Request</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-md leading-relaxed mb-8">
+                Request secure credentials for the Engineering Portal. All requests are subject to administrator verification.
+            </p>
+        </div>
+
+        <div class="w-full md:w-1/2 flex justify-end">
+            <div class="w-full max-w-md bg-kerno-panel border border-gray-800 rounded-lg p-8 shadow-2xl relative overflow-hidden max-h-[80vh] overflow-y-auto">
+                <div class="absolute top-0 left-0 w-full h-1 bg-kerno-green"></div>
+                
+                <h2 class="text-2xl font-light text-white mb-2">Employee <span class="text-kerno-green font-medium">Access</span></h2>
+                <p class="text-sm text-gray-400 mb-6">Register your credentials. Access requires Admin approval.</p>
+
+                <form method="POST" class="kerno-form space-y-4">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="flex flex-col">
+                        <label class="text-[10px] uppercase text-gray-400 font-bold mb-1.5 tracking-wider">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="kerno-helptext">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-[10px] text-red-400 mt-1.5 p-2 bg-red-500/10 border border-red-500/20 rounded">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" class="w-full mt-6 bg-kerno-green hover:bg-[#a6e619] text-black font-semibold py-3 px-4 rounded transition-colors shadow-[0_0_15px_rgba(190,255,56,0.15)] hover:shadow-[0_0_25px_rgba(190,255,56,0.3)]">
+                        Submit Registration Request
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-gray-800 text-center text-sm text-gray-400">
+                    Already have an account? <a href="{% url 'login' %}" class="text-kerno-green hover:underline">Log in here</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

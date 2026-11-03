@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Authentication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kerno-bg': '#121212',
+                        'kerno-panel': '#1c1c1c',
+                        'kerno-green': '#BEFF38',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .kerno-chamfer-btn {
+            clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+        }
+
+        :root {
+            --login-pointer-x: 70%;
+            --login-pointer-y: 28%;
+        }
+
+        .login-shell::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                linear-gradient(120deg, rgba(190, 255, 56, 0.06), transparent 32%, rgba(255, 255, 255, 0.04) 68%, transparent),
+                radial-gradient(circle at var(--login-pointer-x) var(--login-pointer-y), rgba(190, 255, 56, 0.14), transparent 24rem),
+                radial-gradient(circle at 12% 18%, rgba(190, 255, 56, 0.08), transparent 18rem);
+            opacity: 0.85;
+        }
+
+        .login-shell::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+            background-size: 46px 46px;
+            mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.45), transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.45), transparent);
+        }
+
+        .login-glass {
+            background: rgba(28, 28, 28, 0.72);
+            border-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 24px 70px rgba(0, 0, 0, 0.32);
+        }
+
+        .login-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-kicker::before {
+            content: "";
+            width: 1.75rem;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.75;
+        }
+
+        .login-hover-lift {
+            transform: translateY(0);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+
+        .login-hover-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28), 0 0 24px rgba(190, 255, 56, 0.1);
+        }
+
+        /* Automatically style all Django text/password inputs for dark mode */
+        .kerno-form input {
+            width: 100%;
+            background-color: rgba(17, 17, 17, 0.78);
+            border: 1px solid #374151;
+            color: #f3f4f6;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .kerno-form input:focus {
+            border-color: #BEFF38;
+            box-shadow: 0 0 0 1px rgba(190, 255, 56, 0.5);
+        }
+
+        @keyframes login-rise-in {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes login-soft-zoom {
+            from {
+                opacity: 0;
+                transform: scale(1.04);
+            }
+            to {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes login-toast-in {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 12px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .login-bg {
+            animation: login-soft-zoom 700ms ease both;
+        }
+
+        .login-nav,
+        .login-copy,
+        .login-card {
+            animation: login-rise-in 520ms ease both;
+        }
+
+        .login-copy {
+            animation-delay: 90ms;
+        }
+
+        .login-card {
+            animation-delay: 160ms;
+        }
+
+        .login-card form > *,
+        .login-card h2,
+        .login-card p,
+        .login-card .mt-8 {
+            animation: login-rise-in 460ms ease both;
+        }
+
+        .login-card form > *:nth-child(1) {
+            animation-delay: 210ms;
+        }
+
+        .login-card form > *:nth-child(2) {
+            animation-delay: 250ms;
+        }
+
+        .login-card form > *:nth-child(3) {
+            animation-delay: 290ms;
+        }
+
+        .login-card form > *:nth-child(4) {
+            animation-delay: 330ms;
+        }
+
+        .login-card .mt-8 {
+            animation-delay: 380ms;
+        }
+
+        .login-action-toast {
+            animation: login-toast-in 180ms ease both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 1ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 1ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="login-shell bg-kerno-bg text-gray-200 font-sans min-h-screen flex flex-col relative overflow-hidden">
+
+    <div class="login-bg absolute inset-0 z-0 opacity-40 bg-right bg-no-repeat bg-cover" 
+         style="background-image: url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop'); 
+                mask-image: linear-gradient(to right, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%); 
+                -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%);">
+    </div>
+
+    <nav class="login-nav login-glass px-8 flex items-center justify-between relative z-20 w-full border-b border-gray-800/50 bg-[#121212]/80 backdrop-blur-sm">
+        
+        <div class="flex items-center py-4">
+            <div class="border-l border-gray-800 sm:block">
+                <span class="border border-gray-700 bg-[#1c1c1c]/50 text-gray-400 text-[10px] font-semibold uppercase tracking-[0.2em] px-3 py-1.5 rounded">
+                    Engineering Portal
+                </span>
+            </div>
+        </div>
+        
+        <!-- Navigation links and Contact button removed -->
+    </nav>
+
+    <main class="flex-grow flex items-center relative z-10 w-full max-w-7xl mx-auto px-8">
+        <div class="login-copy w-1/2 pr-8 hidden md:block">
+            <p class="login-kicker mb-4 text-xs font-bold uppercase tracking-[0.2em] text-kerno-green">Engineering Portal</p>
+            <h1 class="text-6xl font-light text-white leading-[1.1] tracking-tight mb-6">
+                Bringing <br>
+                Technological <br>
+                Sovereignty <br>
+                Home <span class="text-kerno-green font-normal">to the UAE</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-md leading-relaxed">
+                We design, manufacture, and support enterprise-grade IT and AI infrastructure systems — from CPU/GPU servers to data storage systems.
+            </p>
+            <div class="mt-8 grid max-w-md grid-cols-3 gap-3">
+                <div class="login-glass rounded-lg border border-gray-800 p-3">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Access</p>
+                    <p class="mt-1 text-sm font-medium text-white">Secure</p>
+                </div>
+                <div class="login-glass rounded-lg border border-gray-800 p-3">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Tools</p>
+                    <p class="mt-1 text-sm font-medium text-white">Ready</p>
+                </div>
+                <div class="login-glass rounded-lg border border-gray-800 p-3">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Status</p>
+                    <p class="mt-1 text-sm font-medium text-kerno-green">Online</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 flex justify-end">
+            <div class="login-card login-glass login-hover-lift w-full max-w-md bg-kerno-panel border border-gray-800 rounded-lg p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-kerno-green"></div>
+                
+                <h2 class="text-2xl font-light text-white mb-2">System <span class="text-kerno-green font-medium">Authentication</span></h2>
+                <p class="text-sm text-gray-400 mb-8">Authorized personnel only.</p>
+
+                <form method="POST" class="kerno-form space-y-5">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded mb-4">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="{% if message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-400{% else %}bg-green-500/10 border-green-500/30 text-kerno-green{% endif %} border text-xs p-3 rounded mb-4">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% for field in form %}
+                    <div class="flex flex-col">
+                        <label class="text-xs uppercase text-gray-400 font-bold mb-1.5 tracking-wider">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-[10px] text-red-500 mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" data-login-action class="login-hover-lift w-full mt-4 bg-kerno-green hover:bg-[#a6e619] text-black font-semibold py-3 px-4 rounded transition-colors shadow-[0_0_15px_rgba(190,255,56,0.15)] hover:shadow-[0_0_25px_rgba(190,255,56,0.3)]">
+                        Initialize Secure Session
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-gray-800 text-center text-sm text-gray-400">
+                    Need access? <a href="{% url 'register' %}" class="text-kerno-green hover:underline">Request an account</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="login-action-toast" class="login-action-toast fixed bottom-6 left-1/2 z-[120] hidden max-w-sm -translate-x-1/2 rounded border border-yellow-400/40 bg-[#111111]/90 px-4 py-3 text-sm font-medium text-yellow-100 shadow-2xl backdrop-blur">
+        Too much interactions, try again later.
+    </div>
+    <script>
+        const loginActionToast = document.getElementById('login-action-toast');
+        const loginActionHits = [];
+        let loginActionToastTimeout;
+
+        document.addEventListener('pointermove', function (event) {
+            document.documentElement.style.setProperty('--login-pointer-x', event.clientX + 'px');
+            document.documentElement.style.setProperty('--login-pointer-y', event.clientY + 'px');
+        });
+
+        function showLoginActionToast() {
+            if (!loginActionToast) {
+                return;
+            }
+            loginActionToast.classList.remove('hidden');
+            clearTimeout(loginActionToastTimeout);
+            loginActionToastTimeout = setTimeout(function () {
+                loginActionToast.classList.add('hidden');
+            }, 2200);
+        }
+
+        function isLoginActionLimited() {
+            const now = Date.now();
+            while (loginActionHits.length && now - loginActionHits[0] > 2600) {
+                loginActionHits.shift();
+            }
+            loginActionHits.push(now);
+            return loginActionHits.length > 8;
+        }
+
+        document.addEventListener('submit', function (event) {
+            if (event.target.closest('form') && isLoginActionLimited()) {
+                event.preventDefault();
+                showLoginActionToast();
+            }
+        }, true);
+    </script>
+</body>
+</html>

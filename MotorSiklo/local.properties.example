@@ -1,0 +1,3 @@
+# Copy to local.properties and supply your own Gemini API key.
+# Android Studio manages the local Android SDK path (sdk.dir).
+apiKey=

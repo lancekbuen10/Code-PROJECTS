@@ -1,0 +1,36 @@
+{% extends 'portal_core/base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10">
+    <a href="{% url 'dashboard' %}" data-rate-limited-action class="portal-interactive mb-6 inline-flex items-center rounded border border-gray-700 bg-[#111111]/70 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Dashboard</a>
+
+    <h2 class="text-2xl font-light text-white mb-6">System Activity Logs</h2>
+    
+    <div class="bg-kerno-panel border border-gray-800 rounded-lg overflow-hidden">
+        <table class="w-full text-left text-sm text-gray-400">
+            <thead class="bg-[#111111] text-gray-200 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-4">Timestamp</th>
+                    <th class="px-6 py-4">User</th>
+                    <th class="px-6 py-4">Action</th>
+                    <th class="px-6 py-4">Details</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for log in logs %}
+                <tr class="activity-log-row hover:bg-gray-900/70">
+                    <td class="px-6 py-4">{{ log.timestamp|date:"M d, Y H:i" }}</td>
+                    <td class="px-6 py-4">{{ log.user.username }}</td>
+                    <td class="px-6 py-4 text-kerno-green font-medium">{{ log.action }}</td>
+                    <td class="px-6 py-4">{{ log.details }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center">No logs found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

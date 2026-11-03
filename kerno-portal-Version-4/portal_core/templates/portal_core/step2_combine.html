@@ -1,0 +1,30 @@
+{% extends 'portal_core/base.html' %}
+{% block content %}
+<script>
+    try {
+        if (localStorage.getItem('portal-step1-acknowledged') !== 'true') {
+            window.location.href = "{% url 'tools_dashboard' %}?workflow=device-loading";
+        }
+    } catch (error) {
+        window.location.href = "{% url 'tools_dashboard' %}?workflow=device-loading";
+    }
+</script>
+<div class="max-w-2xl mx-auto mt-10">
+    <a href="{% url 'tools_dashboard' %}?workflow=device-loading" class="mb-6 inline-flex items-center rounded border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-kerno-green hover:text-white">Back to Progress</a>
+    <h2 class="text-2xl text-white mb-6">Step 2b: Combine Lists</h2>
+    <div class="bg-kerno-panel border border-gray-800 p-8 rounded-lg shadow-xl">
+        <form method="POST" action="{% url 'step2_combine' %}" enctype="multipart/form-data" class="space-y-4 file-check-form" data-download-workflow="true" data-completion-key="portal-step2b-completed" data-next-step-url="{% url 'step3_final' %}" data-next-step-label="Continue to Step 3" data-download-filename="Feeder_List_Combined.xlsx">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm text-gray-400 mb-2">Top Feeder File (.xlsx)</label>
+                <input type="file" name="top_feeder_file" required class="w-full bg-[#111111] border border-gray-700 text-white p-2 rounded">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-2">Bottom Feeder File (.xlsx)</label>
+                <input type="file" name="bottom_feeder_file" required class="w-full bg-[#111111] border border-gray-700 text-white p-2 rounded">
+            </div>
+            <button type="submit" class="w-full bg-kerno-green hover:bg-[#a6e619] text-black font-bold py-2 rounded uppercase tracking-widest mt-4">Combine & Sort</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
